@@ -29,14 +29,31 @@
 </div>
 
 <script>
-    function toggleFeedback(elementId) {
-        var x = document.getElementById(elementId);
-        if (x.style.display === "none") {
-            x.style.display = "block";
-        } else {
-            x.style.display = "none";
+    class FeedbackWidget{
+        constructor(elementId) {
+            this._elementId = elementId;
+        }
+
+        get elementId() { //getter, set keyword voor setter methode
+            return this._elementId;
+        }
+
+        show(){
+            toggleFeedback(this.elementId)
+        }
+
+        hide(){
+            toggleFeedback(this.elementId, false)
         }
     }
+
+    function toggleFeedback(elementId, show = true) {
+        console.log(elementId)
+        document.getElementById(elementId).style.display = ((show) ? "block" : "none");
+    }
+
+    const f = new FeedbackWidget('feedback-success');
+    f.hide()
 </script>
 
 
