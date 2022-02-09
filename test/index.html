@@ -1,0 +1,67 @@
+<html lang="en">
+<head>
+    <title>Test</title>
+    <link rel="shortcut icon" type="image/png" href="jasmine/lib/jasmine/jasmine_favicon.png">
+    <link rel="stylesheet" type="text/css" href="jasmine/lib/jasmine/jasmine.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+          integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+
+    <script type="text/javascript" src="jasmine/lib/jasmine/jasmine.js"></script>
+    <script type="text/javascript" src="jasmine/lib/jasmine/jasmine-html.js"></script>
+    <script type="text/javascript" src="jasmine/lib/jasmine/boot.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <script src="/js/feedbackWidget.js"></script>
+</head>
+<body>
+
+<!-- Hidden test elements -->
+<div class="d-none">
+    <div id="feedback-success" class="alert alert-success" role="alert">
+        <p>Veel succes met deze module!</p>
+    </div>
+</div>
+
+<script>
+    beforeAll(function(done) {
+        $(function(){
+            done();
+        });
+    });
+
+    describe("A suite", function () {
+        it("contains spec with an expectation", function () {
+            expect(true).toBe(true);
+        });
+    });
+
+    describe("Application initialisation", function () {
+        it("Method init returns true", function () {
+            const result = myApp.init();
+            expect(result).toBe(true);
+        });
+    });
+
+    describe("Feedback widget hides element", function () {
+        let selector = 'feedback-success';
+        const f = new FeedbackWidget(selector);
+
+        it("is defined and hides element", function () {
+            expect($(`#${selector}`)).toBeDefined();
+
+            // Check initial state
+            expect($(`#${selector}`).attr('style')).toBeUndefined();
+
+            // Hide feedback widget
+            f.hide()
+
+            // Check new state
+            expect($(`#${selector}`).attr('style')).toBe('display: none;')
+        });
+    });
+</script>
+</body>
+</html>
