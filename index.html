@@ -14,7 +14,11 @@
             integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
             crossorigin="anonymous"></script>
 
-    <script src="js/feedbackWidget.js"></script>
+<!--    <script src="js/feedbackWidget.js"></script>-->
+    <script src="js/game.js"></script>
+    <script src="js/game.reversi.js"></script>
+    <script src="js/game.model.js"></script>
+    <script src="js/game.data.js"></script>
 </head>
 <body>
 
@@ -28,22 +32,32 @@
     <button id="random_button">OK?</button>
 </div>
 
+<div id="game"></div>
+
 <script>
-    console.log('hallo wereld')
-
-    const f = new FeedbackWidget('feedback-success');
-    f.show('Veel succes met deze module!', 'success')
-    f.hide()
-
-    // History
-    f.history()
-
     $(() => {
-        console.log('ready')
-        $("#random_button").on("click", function(){
-            alert("The button was clicked.");
-        });
+        Game.Reversi.init('/api/game')
     })
+    // console.log('hallo wereld')
+    //
+    // const f = new FeedbackWidget('feedback-success');
+    // f.show('Veel succes met deze module!', 'success')
+    // f.hide()
+    //
+    // // History
+    // f.history()
+    //
+    // f.show('Test melding!', 'success')
+    // f.show('Test melding2!', 'a')
+    //
+    // $(() => {
+    //     console.log('ready')
+    //     $("#random_button").on("click", function(){
+    //         alert("The button was clicked.");
+    //     });
+    //
+    //     game.init()
+    // })
 </script>
 
 </body>

@@ -15,14 +15,16 @@
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
     <script src="/js/feedbackWidget.js"></script>
+    <script src="/js/game.js"></script>
+    <script src="/js/game.reversi.js"></script>
+    <script src="/js/game.model.js"></script>
+    <script src="/js/game.data.js"></script>
 </head>
 <body>
 
 <!-- Hidden test elements -->
-<div class="d-none">
-    <div id="feedback-success" class="alert alert-success" role="alert">
-        <p>Veel succes met deze module!</p>
-    </div>
+<div id="feedback-success" class="alert alert-success" role="alert">
+    <p>Veel succes met deze module!</p>
 </div>
 
 <script>
@@ -62,6 +64,37 @@
             expect($(`#${selector}`).attr('style')).toBe('display: none;')
         });
     });
+
+    describe("Game initializes", function () {
+        let game = Game;
+
+        it("has init function", function () {
+            expect(game).toBeDefined();
+            expect(isFunction(game.init)).toBe(true)
+        });
+    });
+
+    describe("Game Model initializes", function () {
+        let game = Game;
+
+        it("has init function", function () {
+            expect(game).toBeDefined();
+            expect(isFunction(game.Model.init)).toBe(true)
+        });
+    });
+
+    describe("Game Data initializes", function () {
+        let game = Game;
+
+        it("has init function", function () {
+            expect(game).toBeDefined();
+            expect(isFunction(game.Data.init)).toBe(true)
+        });
+    });
+
+    function isFunction(functionToCheck) {
+        return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]';
+    }
 </script>
 </body>
 </html>

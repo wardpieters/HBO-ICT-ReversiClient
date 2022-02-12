@@ -12,7 +12,8 @@ class FeedbackWidget{
 
         let element = $(`#${this.elementId}`);
         element.text(message);
-        element.class = `alert alert-${(type === "success" ? type : "danger")}`;
+        element.removeAttr('class');
+        element.addClass(`alert alert-${(type === "success" ? type : "danger")}`);
 
         this.log({
             message: message,
