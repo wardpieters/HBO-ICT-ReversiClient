@@ -6,7 +6,6 @@ const Game = ((url) => {
     const privateInit = function(){
         console.log('Private information!');
     }
-
     return {
         init: privateInit,
     }

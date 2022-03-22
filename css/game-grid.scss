@@ -1,0 +1,78 @@
+.game-container {
+  position: relative;
+  margin-bottom: 3rem;
+  margin-top: 3rem;
+
+  .spinner {
+    display: none;
+  }
+
+  &.loading {
+    .spinner {
+      display: block;
+      z-index: 1;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .container-grid {
+      filter: blur(5px);
+    }
+  }
+}
+
+.container-grid {
+  transition: 200ms all ease-in-out;
+  display: grid;
+  aspect-ratio: 1/1;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 0 0;
+  grid-template-areas:
+    ". . . . . . . ."
+    ". . . . . . . ."
+    ". . . . . . . ."
+    ". . . . . . . ."
+    ". . . . . . . ."
+    ". . . . . . . ."
+    ". . . . . . . ."
+    ". . . . . . . .";
+
+  & > div {
+    border: 1px solid black;
+    background-color: green;
+
+    &.odd {
+      background-color: lightgreen;
+    }
+
+    &.active {
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        width: 90%;
+        height: 90%;
+      }
+
+      &.black {
+        &::after {
+          background: black;
+        }
+      }
+
+      &.white {
+        &::after {
+          background: white;
+        }
+      }
+    }
+  }
+}
