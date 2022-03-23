@@ -1,7 +1,8 @@
 .game-container {
   position: relative;
-  margin-bottom: 3rem;
-  margin-top: 3rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  max-height: 90vh;
 
   .spinner {
     display: none;
@@ -26,6 +27,7 @@
 .container-grid {
   transition: 200ms all ease-in-out;
   display: grid;
+  max-height: 90vh;
   aspect-ratio: 1/1;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
@@ -46,6 +48,18 @@
 
     &.odd {
       background-color: lightgreen;
+    }
+
+    &:not(.active) {
+      cursor: pointer;
+
+      &:hover {
+        background-color: darken(green, 5%);
+
+        &.odd {
+          background-color: darken(lightgreen, 5%);
+        }
+      }
     }
 
     &.active {

@@ -1,16 +1,12 @@
 Game.Data = (() => {
-    const req = function (url, data = false, method = 'get') {
+    const req = function (url, options = {}) {
         return $.ajax(url, {
-            method: method,
-            data: data,
+            method: 'get',
+            data: false,
             contentType: "application/json",
+            dataType: 'json',
+            ...options
         })
-            .then(data => {
-                return data;
-            })
-            .catch(e => {
-                console.error(e.message);
-            });
     }
 
     return {

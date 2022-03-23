@@ -10,17 +10,20 @@ Game.Reversi = (() => {
     }
 
     const onMove = async (x, y) => {
-        console.log(x, y, configMap.currentGame)
-
-         await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/move`, JSON.stringify({
-             playerToken: configMap.currentGame.player1Token,
-             x: x,
-             y: y,
-         }), 'post');
+        Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/move`, {
+            data: JSON.stringify({
+                playerToken: configMap.currentGame.player1Token,
+                x: x,
+                y: y,
+            }),
+            method: 'post'
+        }).then(data => {
+            populateBoard(data.bord)
+        }).catch(e => alert(e.responseJSON.message))
     }
 
     const registerHandlers = () => {
-        $('#game_board > div').click(function() {
+        $('#game_board > div').click(function () {
             let index = $(this).index();
 
             let y = index % 8;
@@ -29,9 +32,16 @@ Game.Reversi = (() => {
             onMove(x, y)
         })
 
-        $('#skip_turn').click(async function() {
-            let a = await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.currentGame.player1Token}/skip`);
-            console.log(a);
+        $('#skip_turn').click(async function () {
+            await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.currentGame.player1Token}/skip`)
+                .then(() => {
+                    console.log('done?')
+                })
+                .then((data) => {
+                    console.log('done?')
+                    console.log(data)
+                })
+                .catch(e => alert(e.responseJSON.message))
         })
     }
 
@@ -39,7 +49,11 @@ Game.Reversi = (() => {
         let gameData = await getGame()
         configMap.currentGame = gameData;
 
-        let board = gameData.bord;
+        populateBoard(gameData.bord)
+    }
+
+    const populateBoard = (board) => {
+        $(`#game_board > div`).removeClass('active white black');
 
         for (let i in board) {
             let row = board[i];
@@ -47,7 +61,7 @@ Game.Reversi = (() => {
             for (let j in row) {
                 let value = row[j];
 
-                if(value > 0) {
+                if (value > 0) {
                     let nth = parseInt(j) + (parseInt(i) * 8);
                     $(`#game_board > div:eq(${nth})`).addClass(`active ${value === 1 ? "white" : "black"}`)
                 }
@@ -56,7 +70,10 @@ Game.Reversi = (() => {
     }
 
     const getGame = async () => {
-        return await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}`);
+        return await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}`)
+            .then(data => {
+                return data;
+            }).catch(e => alert(e.responseJSON.message))
     }
 
     return {

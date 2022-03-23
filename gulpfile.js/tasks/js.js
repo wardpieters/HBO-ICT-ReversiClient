@@ -8,7 +8,6 @@ const fn = function (filesJs, filesJsOrder, backendPath) {
     return function () {
         return src(filesJs)
             .pipe(order(filesJsOrder, {base: './js'}))
-            .pipe(print())
             .pipe(concat('app.js'))
             .pipe(babel({
                 presets: ['@babel/preset-env']
