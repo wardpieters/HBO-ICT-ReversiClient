@@ -1,18 +1,26 @@
 Game.Reversi = (() => {
-    let configMap = {}
+    let configMap = {
+        colors: {
+            0: 'Geen',
+            1: 'Wit',
+            2: 'Zwart',
+        }
+    }
 
-    const privateInit = async (apiUrl, gameToken, afterInit) => {
+    const privateInit = async (apiUrl, options = {}, afterInit) => {
         configMap.apiUrl = apiUrl.replace(/\/$/, '');
-        configMap.gameToken = gameToken;
+        configMap.gameToken = options.gameToken;
+        configMap.playerToken = options.playerToken;
         await setupGameBoard()
         registerHandlers()
+        await SetupSignalR()
         afterInit()
     }
 
     const onMove = async (x, y) => {
         Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/move`, {
             data: JSON.stringify({
-                playerToken: configMap.currentGame.player1Token,
+                playerToken: configMap.playerToken,
                 x: x,
                 y: y,
             }),
@@ -33,12 +41,11 @@ Game.Reversi = (() => {
         })
 
         $('#skip_turn').click(async function () {
-            await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.currentGame.player1Token}/skip`)
-                .then(() => {
-                    console.log('done?')
-                })
+            await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.currentGame.player1Token}/skip`, {
+                beforeSend: () => $('#skip_turn').addClass('loading'),
+                complete: () => $('#skip_turn').removeClass('loading'),
+            })
                 .then((data) => {
-                    console.log('done?')
                     console.log(data)
                 })
                 .catch(e => alert(e.responseJSON.message))
@@ -49,7 +56,22 @@ Game.Reversi = (() => {
         let gameData = await getGame()
         configMap.currentGame = gameData;
 
+        if (gameData.gameFinished) {
+            alert(`De game is afgelopen. ${gameData.gameWinner === 0 ? "Het is gelijkspel!" : (configMap.colors[gameData.gameWinner] + " heeft gewonnen!")}`)
+        }
+
         populateBoard(gameData.bord)
+    }
+
+    const SetupSignalR = async () => {
+        try {
+            await Game.SignalR.init(`${configMap.apiUrl}/hub`, () => {
+                setupGameBoard()
+            })
+            console.log('SignalR done!')
+        } catch (e) {
+            console.log('SignalR error!')
+        }
     }
 
     const populateBoard = (board) => {
