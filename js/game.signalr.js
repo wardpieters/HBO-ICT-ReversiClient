@@ -9,7 +9,7 @@ Game.SignalR = (() => {
 
     const SetupConnection = async (onMovementUpdate) => {
         connection = new signalR.HubConnectionBuilder().withUrl(configMap.apiUrl, {
-            //withCredentials: false
+            withCredentials: false
         }).build();
 
         connection.on("ReceiveMovementUpdate", () => {

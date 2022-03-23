@@ -19,8 +19,8 @@ module.exports = {
         '../node_modules/jquery/dist/jquery.min.js',
         '../node_modules/bootstrap/dist/js/bootstrap.min.js',
         '../node_modules/@microsoft/signalr/dist/browser/signalr.min.js',
+        'main.js',
         'game.js',
         '*.js',
     ],
-    voornaam: 'Ward'
 };

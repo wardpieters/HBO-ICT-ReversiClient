@@ -41,7 +41,7 @@ Game.Reversi = (() => {
         })
 
         $('#skip_turn').click(async function () {
-            await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.currentGame.player1Token}/skip`, {
+            await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.playerToken}/skip`, {
                 beforeSend: () => $('#skip_turn').addClass('loading'),
                 complete: () => $('#skip_turn').removeClass('loading'),
             })
@@ -55,10 +55,6 @@ Game.Reversi = (() => {
     const setupGameBoard = async () => {
         let gameData = await getGame()
         configMap.currentGame = gameData;
-
-        if (gameData.gameFinished) {
-            alert(`De game is afgelopen. ${gameData.gameWinner === 0 ? "Het is gelijkspel!" : (configMap.colors[gameData.gameWinner] + " heeft gewonnen!")}`)
-        }
 
         populateBoard(gameData.bord)
     }
@@ -88,6 +84,16 @@ Game.Reversi = (() => {
                     $(`#game_board > div:eq(${nth})`).addClass(`active ${value === 1 ? "white" : "black"}`)
                 }
             }
+        }
+
+        if (configMap.currentGame.gameFinished) {
+            Swal.fire({
+                title: 'Spel afgelopen',
+                text: configMap.currentGame.gameWinner === 0 ? "Het is gelijkspel!" : (configMap.colors[configMap.currentGame.gameWinner] + " heeft gewonnen!"),
+                showCancelButton: true,
+                confirmButtonText: '<a class="text-white" href="/">Terug naar het overzicht</a>',
+                cancelButtonText: 'Sluiten'
+            })
         }
     }
 
