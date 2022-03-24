@@ -26,12 +26,15 @@ Game.Reversi = (() => {
             }),
             method: 'post'
         }).then(data => {
+            configMap.currentGame = data;
             populateBoard(data.bord)
-        }).catch(e => alert(e.responseJSON.message))
+        }).catch(e => fancyError(e))
     }
 
     const registerHandlers = () => {
         $('#game_board > div').click(function () {
+            if ($(this).hasClass('active')) return;
+
             let index = $(this).index();
 
             let y = index % 8;
@@ -46,9 +49,16 @@ Game.Reversi = (() => {
                 complete: () => $('#skip_turn').removeClass('loading'),
             })
                 .then((data) => {
-                    console.log(data)
+                    configMap.currentGame = data;
+                    populateBoard(data.bord)
+
+                    Swal.fire({
+                        title: 'Beurt overgeslagen',
+                        text: `Je hebt een beurt overgeslagen. ${configMap.colors[configMap.currentGame.aandeBeurt] + " is nu aan de beurt!"}`,
+                        confirmButtonText: 'Sluiten'
+                    })
                 })
-                .catch(e => alert(e.responseJSON.message))
+                .catch(e => fancyError(e))
         })
     }
 
@@ -97,11 +107,22 @@ Game.Reversi = (() => {
         }
     }
 
+    const fancyError = (e) => {
+        let msg = e.responseJSON ? e.responseJSON.message : "Onbekende fout";
+
+        Swal.fire({
+            title: 'Er is een fout opgetreden',
+            icon: 'error',
+            text: msg,
+            confirmButtonText: 'Sluiten'
+        })
+    }
+
     const getGame = async () => {
         return await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}`)
             .then(data => {
                 return data;
-            }).catch(e => alert(e.responseJSON.message))
+            }).catch(e => fancyError(e))
     }
 
     return {
