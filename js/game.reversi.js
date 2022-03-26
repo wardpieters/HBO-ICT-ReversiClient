@@ -17,6 +17,22 @@ Game.Reversi = (() => {
         afterInit()
     }
 
+    const setupGameBoard = async () => {
+        let gameData = await getGame()
+        updateGameBoard(gameData)
+    }
+
+    const updateGameBoard = (gameData) => {
+        configMap.currentGame = gameData;
+
+        populateBoard(gameData.bord)
+        updateGameState(gameData)
+    }
+
+    const updateGameState = (gameData) => {
+        $('#game_state').html(`${configMap.colors[gameData.aandeBeurt]} is aan de beurt`);
+    }
+
     const onMove = async (x, y) => {
         Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/move`, {
             data: JSON.stringify({
@@ -26,8 +42,7 @@ Game.Reversi = (() => {
             }),
             method: 'post'
         }).then(data => {
-            configMap.currentGame = data;
-            populateBoard(data.bord)
+            updateGameBoard(data)
         }).catch(e => fancyError(e))
     }
 
@@ -43,37 +58,42 @@ Game.Reversi = (() => {
             onMove(x, y)
         })
 
-        $('#skip_turn').click(async function () {
-            await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.playerToken}/skip`, {
-                beforeSend: () => $('#skip_turn').addClass('loading'),
-                complete: () => $('#skip_turn').removeClass('loading'),
-            })
-                .then((data) => {
-                    configMap.currentGame = data;
-                    populateBoard(data.bord)
-
-                    Swal.fire({
-                        title: 'Beurt overgeslagen',
-                        text: `Je hebt een beurt overgeslagen. ${configMap.colors[configMap.currentGame.aandeBeurt] + " is nu aan de beurt!"}`,
-                        confirmButtonText: 'Sluiten'
-                    })
-                })
-                .catch(e => fancyError(e))
-        })
+        $('#skip_turn').click(skipTurn);
     }
 
-    const setupGameBoard = async () => {
-        let gameData = await getGame()
-        configMap.currentGame = gameData;
+    const skipTurn = async () => {
+        await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.playerToken}/skip`, {
+            beforeSend: () => $('#skip_turn').addClass('loading'),
+            complete: () => $('#skip_turn').removeClass('loading'),
+        })
+            .then((data) => {
+                updateGameBoard(data)
 
-        populateBoard(gameData.bord)
+                Swal.fire({
+                    title: 'Beurt overgeslagen',
+                    text: `Je hebt een beurt overgeslagen. ${configMap.colors[configMap.currentGame.aandeBeurt] + " is nu aan de beurt!"}`,
+                    confirmButtonText: 'Sluiten'
+                })
+            })
+            .catch(e => fancyError(e))
     }
 
     const SetupSignalR = async () => {
         try {
-            await Game.SignalR.init(`${configMap.apiUrl}/hub`, () => {
-                setupGameBoard()
-            })
+            await Game.SignalR.init(`${configMap.apiUrl}/hub`,
+                configMap.gameToken,
+                () => {
+                    setupGameBoard()
+                },
+                () => {
+                    Swal.fire({
+                        title: 'Speler geleaved',
+                        text: 'Een speler heeft het spel verlaten. Nodig iemand anders uit, of verlaat het spel.',
+                        confirmButtonText: 'Begrepen!',
+                    })
+                }
+            )
+
             console.log('SignalR done!')
         } catch (e) {
             console.log('SignalR error!')

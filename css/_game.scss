@@ -2,7 +2,7 @@
   position: relative;
   margin-bottom: 1rem;
   margin-top: 1rem;
-  max-height: 90vh;
+  max-height: 60vh;
   aspect-ratio: 1/1;
 
   .spinner {
@@ -28,20 +28,10 @@
 .container-grid {
   transition: 200ms all ease-in-out;
   display: grid;
-  max-height: 90vh;
   aspect-ratio: 1/1;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
   gap: 0 0;
-  grid-template-areas:
-    ". . . . . . . ."
-    ". . . . . . . ."
-    ". . . . . . . ."
-    ". . . . . . . ."
-    ". . . . . . . ."
-    ". . . . . . . ."
-    ". . . . . . . ."
-    ". . . . . . . .";
 
   & > div {
     border: 1px solid black;
