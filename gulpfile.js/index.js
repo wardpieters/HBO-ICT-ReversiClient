@@ -7,7 +7,7 @@ js.displayName = 'js';
 const scss = require('./tasks/sass').sass(config.localServerProjectPath, config.files.sass);
 scss.displayName = 'sass';
 
-const watchScss = () => watch(config.files.sass, series(scss));
+const watchScss = () => watch(config.sassWatchFiles, series(scss));
 const watchJs = () => watch(config.files.js, series(js));
 
 exports.watch = parallel(watchJs, watchScss)

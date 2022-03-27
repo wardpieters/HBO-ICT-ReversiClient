@@ -2,12 +2,12 @@ Game.SignalR = (() => {
     let configMap = {}
     let connection = null;
 
-    const init = async (apiUrl, gameToken, onMovementUpdate, onPlayerLeave) => {
+    const init = async (apiUrl, gameToken, onMovementUpdate, onPlayerLeave, onPlayerJoin) => {
         configMap.apiUrl = apiUrl;
-        await SetupConnection(gameToken, onMovementUpdate, onPlayerLeave);
+        await SetupConnection(gameToken, onMovementUpdate, onPlayerLeave, onPlayerJoin);
     }
 
-    const SetupConnection = async (gameToken, onMovementUpdate, onPlayerLeave) => {
+    const SetupConnection = async (gameToken, onMovementUpdate, onPlayerLeave, onPlayerJoin) => {
         connection = new signalR.HubConnectionBuilder().withUrl(configMap.apiUrl, {
             withCredentials: false
         }).build();
@@ -21,6 +21,12 @@ Game.SignalR = (() => {
         connection.on("LeavePlayerUpdate", (providedGameToken) => {
             if(gameToken === providedGameToken) {
                 onPlayerLeave()
+            }
+        });
+
+        connection.on("JoinPlayerUpdate", (providedGameToken) => {
+            if(gameToken === providedGameToken) {
+                onPlayerJoin()
             }
         });
 

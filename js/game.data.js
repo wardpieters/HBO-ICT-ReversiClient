@@ -1,13 +1,5 @@
 Game.Data = (() => {
-    const req = function (url, options = {}) {
-        return $.ajax(url, {
-            method: 'get',
-            data: false,
-            contentType: "application/json",
-            dataType: 'json',
-            ...options
-        })
-    }
+    const req = (url, options = {}) => Game.API.req(url, options)
 
     return {
         req

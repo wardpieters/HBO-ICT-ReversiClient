@@ -9,8 +9,8 @@ Game.Reversi = (() => {
 
     const privateInit = async (apiUrl, options = {}, afterInit) => {
         configMap.apiUrl = apiUrl.replace(/\/$/, '');
-        configMap.gameToken = options.gameToken;
-        configMap.playerToken = options.playerToken;
+        configMap = {...configMap, ...options}
+
         await setupGameBoard()
         registerHandlers()
         await SetupSignalR()
@@ -25,12 +25,17 @@ Game.Reversi = (() => {
     const updateGameBoard = (gameData) => {
         configMap.currentGame = gameData;
 
-        populateBoard(gameData.bord)
         updateGameState(gameData)
+        populateBoard(gameData.game.bord)
     }
 
     const updateGameState = (gameData) => {
-        $('#game_state').html(`${configMap.colors[gameData.aandeBeurt]} is aan de beurt`);
+        $('#game_state').html(getTurnText(gameData));
+
+        $('#game_black_count').html(`Zwart: ${gameData.stats.blackCount}`);
+        $('#game_white_count').html(`Wit: ${gameData.stats.whiteCount}`);
+
+        $('#game_progressbar').attr('aria-valuenow', gameData.stats.totalCount).width(`${(gameData.stats.totalCount / 40) * 100}%`)
     }
 
     const onMove = async (x, y) => {
@@ -62,16 +67,13 @@ Game.Reversi = (() => {
     }
 
     const skipTurn = async () => {
-        await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.playerToken}/skip`, {
-            beforeSend: () => $('#skip_turn').addClass('loading'),
-            complete: () => $('#skip_turn').removeClass('loading'),
-        })
+        await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.playerToken}/skip`)
             .then((data) => {
                 updateGameBoard(data)
 
                 Swal.fire({
                     title: 'Beurt overgeslagen',
-                    text: `Je hebt een beurt overgeslagen. ${configMap.colors[configMap.currentGame.aandeBeurt] + " is nu aan de beurt!"}`,
+                    text: `Je hebt een beurt overgeslagen. ${getTurnText(data)}!`,
                     confirmButtonText: 'Sluiten'
                 })
             })
@@ -86,12 +88,17 @@ Game.Reversi = (() => {
                     setupGameBoard()
                 },
                 () => {
+                    setupGameBoard()
+
                     Swal.fire({
                         title: 'Speler geleaved',
                         text: 'Een speler heeft het spel verlaten. Nodig iemand anders uit, of verlaat het spel.',
                         confirmButtonText: 'Begrepen!',
                     })
-                }
+                },
+                () => {
+                    setupGameBoard()
+                },
             )
 
             console.log('SignalR done!')
@@ -116,15 +123,35 @@ Game.Reversi = (() => {
             }
         }
 
-        if (configMap.currentGame.gameFinished) {
-            Swal.fire({
-                title: 'Spel afgelopen',
-                text: configMap.currentGame.gameWinner === 0 ? "Het is gelijkspel!" : (configMap.colors[configMap.currentGame.gameWinner] + " heeft gewonnen!"),
-                showCancelButton: true,
-                confirmButtonText: '<a class="text-white" href="/">Terug naar het overzicht</a>',
-                cancelButtonText: 'Sluiten'
-            })
+        if (configMap.currentGame.game.gameFinished) {
+            gameFinished()
         }
+    }
+
+    const gameFinished = () => {
+        $('#leave_game').prop('disabled', true);
+
+        Swal.fire({
+            title: 'Spel afgelopen',
+            text: configMap.currentGame.game.gameWinner === 0 ? "Het is gelijkspel!" : (configMap.colors[configMap.currentGame.game.gameWinner] + " heeft gewonnen!"),
+            showCancelButton: true,
+            confirmButtonText: '<a class="text-white" href="/">Terug naar het overzicht</a>',
+            cancelButtonText: 'Sluiten'
+        })
+    }
+    
+    const getTurnText = (data) => {
+        let colorTurn = configMap.colors[configMap.currentGame.game.aandeBeurt];
+
+        if (data.game.gameFinished) {
+            return `Het spel is afgelopen`;
+        }
+
+        if (!data.isPlayable) {
+            return `Wachten op spelers &hellip;`;
+        }
+
+        return (data.isMyTurn ? `Jij (${colorTurn.toLowerCase()}) bent` : colorTurn + " is") + " nu aan de beurt";
     }
 
     const fancyError = (e) => {
@@ -139,7 +166,7 @@ Game.Reversi = (() => {
     }
 
     const getGame = async () => {
-        return await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}`)
+        return await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.playerToken}`)
             .then(data => {
                 return data;
             }).catch(e => fancyError(e))

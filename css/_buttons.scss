@@ -1,27 +1,14 @@
-@keyframes spinner {
-  to {transform: rotate(360deg);}
-}
-
 .btn {
   transition: padding 0.2s ease;
 
   &.loading {
     position: relative;
-    padding-right: 50px;
+    color: transparent;
 
     &:before {
-      content: '';
-      box-sizing: border-box;
+      content: 'Laden ...';
       position: absolute;
-      top: 50%;
-      right: 12.5px;
-      width: 20px;
-      height: 20px;
-      margin-top: -10px;
-      border-radius: 50%;
-      border: 2px solid #ccc;
-      border-top-color: #fff;
-      animation: spinner .6s linear infinite;
+      color: white;
     }
   }
 }

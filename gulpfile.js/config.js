@@ -10,10 +10,12 @@ module.exports = {
             'node_modules/@microsoft/signalr/dist/browser/signalr.min.js',
         ],
         sass: [
-            './css/**/*.css',
-            './css/**/*.scss',
+            './css/main.scss',
         ],
     },
+    sassWatchFiles: [
+        './css/**/*.scss',
+    ],
     jsFilesOrder : [
         '../node_modules/@babel/polyfill/dist/polyfill.min.js',
         '../node_modules/jquery/dist/jquery.min.js',
