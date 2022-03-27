@@ -40,14 +40,12 @@ Game.Reversi = (() => {
 
     const onMove = async (x, y) => {
         Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/move`, {
+            method: 'post',
             data: JSON.stringify({
                 playerToken: configMap.playerToken,
                 x: x,
                 y: y,
-            }),
-            method: 'post'
-        }).then(data => {
-            updateGameBoard(data)
+            })
         }).catch(e => fancyError(e))
     }
 
@@ -128,10 +126,20 @@ Game.Reversi = (() => {
         }
     }
 
-    const gameFinished = () => {
+    const gameFinished = async () => {
         $('#leave_game').prop('disabled', true);
 
+        let imageUrl = false;
+
+        try {
+            let imageData = await Game.Giphy.init('finished');
+            let imageObject = getRandomItem(imageData.data);
+            imageUrl = imageObject.images.original.url;
+        } catch (e) {}
+
         Swal.fire({
+            imageUrl: imageUrl,
+            imageHeight: 300,
             title: 'Spel afgelopen',
             text: configMap.currentGame.game.gameWinner === 0 ? "Het is gelijkspel!" : (configMap.colors[configMap.currentGame.game.gameWinner] + " heeft gewonnen!"),
             showCancelButton: true,
@@ -171,6 +179,15 @@ Game.Reversi = (() => {
                 return data;
             }).catch(e => fancyError(e))
     }
+
+    const getRandomItem = (arr) => {
+        // get random index value
+        const randomIndex = Math.floor(Math.random() * arr.length);
+
+        // get random item
+        return arr[randomIndex];
+    }
+
 
     return {
         init: privateInit
