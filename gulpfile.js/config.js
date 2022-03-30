@@ -8,6 +8,7 @@ module.exports = {
             'node_modules/bootstrap/dist/js/bootstrap.min.js',
             'node_modules/@babel/polyfill/dist/polyfill.min.js',
             'node_modules/@microsoft/signalr/dist/browser/signalr.min.js',
+            'node_modules/chart.js/dist/chart.min.js'
         ],
         sass: [
             './css/main.scss',
@@ -21,6 +22,7 @@ module.exports = {
         '../node_modules/jquery/dist/jquery.min.js',
         '../node_modules/bootstrap/dist/js/bootstrap.min.js',
         '../node_modules/@microsoft/signalr/dist/browser/signalr.min.js',
+        '../node_modules/chart.js/dist/chart.min.js',
         'game.js',
         '*.js',
     ],

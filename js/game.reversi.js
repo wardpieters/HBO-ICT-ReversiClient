@@ -12,6 +12,7 @@ Game.Reversi = (() => {
         configMap = {...configMap, ...options}
 
         await setupGameBoard()
+        await setupGraphs(configMap.gameToken)
         registerHandlers()
         await SetupSignalR()
         afterInit()
@@ -29,13 +30,17 @@ Game.Reversi = (() => {
         populateBoard(gameData.game.bord)
     }
 
+    const setupGraphs = (gameToken) => {
+        Game.Stats.init()
+    }
+
     const updateGameState = (gameData) => {
         $('#game_state').html(getTurnText(gameData));
 
         $('#game_black_count').html(`Zwart: ${gameData.stats.blackCount}`);
         $('#game_white_count').html(`Wit: ${gameData.stats.whiteCount}`);
 
-        $('#game_progressbar').attr('aria-valuenow', gameData.stats.totalCount).width(`${(gameData.stats.totalCount / 40) * 100}%`)
+        $('#game_progressbar').attr('aria-valuenow', gameData.stats.totalCount).width(`${(gameData.stats.totalCount / 64) * 100}%`)
     }
 
     const onMove = async (x, y) => {
@@ -46,7 +51,7 @@ Game.Reversi = (() => {
                 x: x,
                 y: y,
             })
-        }).catch(e => fancyError(e))
+        }).catch(e => Game.Helpers.fancyError(e))
     }
 
     const registerHandlers = () => {
@@ -75,15 +80,16 @@ Game.Reversi = (() => {
                     confirmButtonText: 'Sluiten'
                 })
             })
-            .catch(e => fancyError(e))
+            .catch(e => Game.Helpers.fancyError(e))
     }
 
     const SetupSignalR = async () => {
         try {
             await Game.SignalR.init(`${configMap.apiUrl}/hub`,
                 configMap.gameToken,
-                () => {
-                    setupGameBoard()
+                async () => {
+                    await setupGameBoard()
+                    Game.Stats.updateStats(configMap.currentGame)
                 },
                 () => {
                     setupGameBoard()
@@ -93,6 +99,9 @@ Game.Reversi = (() => {
                         text: 'Een speler heeft het spel verlaten. Nodig iemand anders uit, of verlaat het spel.',
                         confirmButtonText: 'Begrepen!',
                     })
+                },
+                () => {
+                    setupGameBoard()
                 },
                 () => {
                     setupGameBoard()
@@ -107,6 +116,7 @@ Game.Reversi = (() => {
 
     const populateBoard = (board) => {
         $(`#game_board > div`).removeClass('active white black');
+        let count = 0;
 
         for (let i in board) {
             let row = board[i];
@@ -117,8 +127,13 @@ Game.Reversi = (() => {
                 if (value > 0) {
                     let nth = parseInt(j) + (parseInt(i) * 8);
                     $(`#game_board > div:eq(${nth})`).addClass(`active ${value === 1 ? "white" : "black"}`)
+                    count++;
                 }
             }
+        }
+
+        if(count <= 4) {
+            Game.Stats.clear()
         }
 
         if (configMap.currentGame.game.gameFinished) {
@@ -133,7 +148,7 @@ Game.Reversi = (() => {
 
         try {
             let imageData = await Game.Giphy.init('finished');
-            let imageObject = getRandomItem(imageData.data);
+            let imageObject = Game.Helpers.getRandomItem(imageData.data);
             imageUrl = imageObject.images.original.url;
         } catch (e) {}
 
@@ -162,32 +177,12 @@ Game.Reversi = (() => {
         return (data.isMyTurn ? `Jij (${colorTurn.toLowerCase()}) bent` : colorTurn + " is") + " nu aan de beurt";
     }
 
-    const fancyError = (e) => {
-        let msg = e.responseJSON ? e.responseJSON.message : "Onbekende fout";
-
-        Swal.fire({
-            title: 'Er is een fout opgetreden',
-            icon: 'error',
-            text: msg,
-            confirmButtonText: 'Sluiten'
-        })
-    }
-
     const getGame = async () => {
         return await Game.Data.req(`${configMap.apiUrl}/game/${configMap.gameToken}/${configMap.playerToken}`)
             .then(data => {
                 return data;
-            }).catch(e => fancyError(e))
+            }).catch(e => Game.Helpers.fancyError(e))
     }
-
-    const getRandomItem = (arr) => {
-        // get random index value
-        const randomIndex = Math.floor(Math.random() * arr.length);
-
-        // get random item
-        return arr[randomIndex];
-    }
-
 
     return {
         init: privateInit
